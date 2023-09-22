@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-class Entry
+class JournalEntry
 {
     public string Prompt { get; set; }
     public string Response { get; set; }
     public string Date { get; set; }
 
-    public Entry(string prompt, string response, string date)
+    public JournalEntry(string prompt, string response, string date)
     {
         Date = date;
         Prompt = $"{Date}: {prompt}"; // Add date to the prompt.
@@ -26,16 +26,16 @@ class Entry
 
 class Journal
 {
-    private List<Entry> entries = new List<Entry>();
+    private List<JournalEntry> _entries = new List<JournalEntry>();
 
-    public void AddEntry(Entry entry)
+    public void AddEntry(JournalEntry entry)
     {
-        entries.Add(entry);
+        _entries.Add(entry);
     }
 
     public void DisplayEntries()
     {
-        foreach (var entry in entries)
+        foreach (var entry in _entries)
         {
             Console.WriteLine($"Date: {entry.Date}");
             Console.WriteLine($"Prompt: {entry.Prompt}");
@@ -48,7 +48,7 @@ class Journal
         using (StreamWriter writer = new StreamWriter(filename))
         {
             writer.WriteLine("Date,Prompt,Response");
-            foreach (var entry in entries)
+            foreach (var entry in _entries)
             {
                 writer.WriteLine(entry.ToCsvString());
             }
@@ -57,7 +57,7 @@ class Journal
 
     public void LoadFromCsvFile(string filename)
     {
-        entries.Clear();
+        _entries.Clear();
         try
         {
             using (StreamReader reader = new StreamReader(filename))
@@ -78,7 +78,7 @@ class Journal
                         string date = parts[0];
                         string prompt = parts[1];
                         string response = parts[2];
-                        entries.Add(new Entry(prompt, response, date));
+                        _entries.Add(new JournalEntry(prompt, response, date));
                     }
                 }
             }
@@ -91,7 +91,7 @@ class Journal
 
     public void SearchByDate(string date)
     {
-        var matchingEntries = entries.Where(entry => entry.Date == date).ToList();
+        var matchingEntries = _entries.Where(entry => entry.Date == date).ToList();
         if (matchingEntries.Count > 0)
         {
             Console.WriteLine($"Entries for {date}:\n");
@@ -145,7 +145,7 @@ class Program
                     Console.WriteLine($"Prompt ({currentDate}): {randomPrompt}");
                     Console.Write("Enter your response: ");
                     string response = Console.ReadLine();
-                    journal.AddEntry(new Entry(randomPrompt, response, currentDate));
+                    journal.AddEntry(new JournalEntry(randomPrompt, response, currentDate));
                     break;
                 case "2":
                     journal.DisplayEntries();
