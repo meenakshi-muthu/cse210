@@ -160,9 +160,7 @@ class Program
         Console.WriteLine("Welcome to the Scripture Memorization Program!");
         // Create a scripture library
         ScriptureLibrary library = new ScriptureLibrary();
-        // Load scriptures from a file (you can replace "Scriptures.txt" with your file path)
         library.LoadScripturesFromFile("Scriptures.txt");
-        // Get a random scripture from the library
         Scripture randomScripture = library.GetRandomScripture();
         while (!randomScripture.IsComplete())
         {
