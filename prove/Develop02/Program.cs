@@ -175,3 +175,7 @@ class Program
         }
     }
 }
+
+// Exceed Requirement 
+// I have added an extra option for users to exit if they don't want to continue 
+// and also added code to save the entered data as file.
