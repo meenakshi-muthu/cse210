@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 class Activity
 {
@@ -86,4 +85,6 @@ class Cycling : Activity
 
     public override string GetSummary()
     {
-        return $"{base.GetSummary()} - Speed: {Speed} mph, Pace: {GetP
+        return $"{base.GetSummary()} - Speed: {Speed} mph, Pace: {GetPace()} min/mile";
+    }
+}

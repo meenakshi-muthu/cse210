@@ -39,7 +39,7 @@ abstract class MindfulnessActivity
         Thread.Sleep(3000); // Pause before finishing
     }
 
-    // animation during pauses
+    // Animation during pauses
     protected void DisplaySpinner(int seconds)
     {
         Console.Write("Processing ");
@@ -47,7 +47,7 @@ abstract class MindfulnessActivity
         {
             Console.Write(".");
             Thread.Sleep(1000); // Pause for 1 second
-            Console.Write("\b \b"); 
+            Console.Write("\b \b");
         }
         Console.WriteLine();
     }
@@ -66,23 +66,42 @@ class BreathingActivity : MindfulnessActivity
 
         Console.WriteLine("Get ready to begin...\n");
 
-        for (int i = 0; i < duration; i++)
+        Console.Write("Enter the duration in seconds: ");
+        if (int.TryParse(Console.ReadLine(), out int userDuration) && userDuration > 0)
         {
-            Console.WriteLine("Breathe in...");
-            Thread.Sleep(1000); // Pause for countdown
+            int totalDuration = 0;
 
-            // Perform the dynamic text animation
-            PerformBreathingAnimation("Breathe in...", animationDuration, animationFrames);
+            while (totalDuration < userDuration)
+            {
+                Console.WriteLine("Breathe in...");
+                PerformCountdown(4); // Pause for 4 seconds
 
-            Console.WriteLine();
+                // Perform the dynamic text animation
+                PerformBreathingAnimation("Breathe in...", animationDuration, animationFrames);
 
-            Console.WriteLine("Breathe out...");
-            Thread.Sleep(1000); // Pause for countdown
+                Console.WriteLine();
 
-            // Perform the dynamic text animation
-            PerformBreathingAnimation("Breathe out...", animationDuration, animationFrames);
+                totalDuration += 4; // Increment the total duration
 
-            Console.WriteLine();
+                if (totalDuration >= userDuration)
+                    break;
+
+                Console.WriteLine("Breathe out...");
+                PerformCountdown(4); // Pause for 4 seconds
+
+                // Perform the dynamic text animation
+                PerformBreathingAnimation("Breathe out...", animationDuration, animationFrames);
+
+                Console.WriteLine();
+
+                totalDuration += 4; // Increment the total duration
+            }
+
+            Console.WriteLine("Breathing activity completed.");
+        }
+        else
+        {
+            Console.WriteLine("Invalid duration. Please enter a valid number greater than 0.");
         }
     }
 
@@ -90,9 +109,19 @@ class BreathingActivity : MindfulnessActivity
     {
         for (int j = 0; j < frames; j++)
         {
-            int delay = (int)(Math.Pow(j, 2) / frames) + 1; 
+            int delay = (int)(Math.Pow(j, 2) / frames) + 1;
             Console.Write(new string(' ', j) + message + new string(' ', frames - j) + "\r");
             Thread.Sleep(delay);
+        }
+    }
+
+    private void PerformCountdown(int seconds)
+    {
+        for (int i = seconds; i > 0; i--)
+        {
+            Console.WriteLine($"{i}...");
+            Thread.Sleep(1000); // Pause for 1 second
+            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
         }
     }
 }
@@ -124,15 +153,39 @@ class ReflectionActivity : MindfulnessActivity
 
     protected override void PerformActivity(int duration)
     {
-        string prompt = Prompts[new Random().Next(Prompts.Length)];
-        Console.WriteLine(prompt);
+        Console.WriteLine("Get ready to begin...\n");
 
-        foreach (string question in Questions)
+        Console.Write("Enter the duration in seconds: ");
+        if (int.TryParse(Console.ReadLine(), out int userDuration) && userDuration > 0)
         {
-            Console.WriteLine(question);
-            DisplaySpinner(1); // Display animation for 1 second
+            int totalDuration = 0;
+            Random random = new Random();
+
+            while (totalDuration < userDuration)
+            {
+                string randomPrompt = Prompts[random.Next(Prompts.Length)]; // Select a random prompt
+                Console.WriteLine(randomPrompt);
+
+                foreach (string question in Questions)
+                {
+                    Console.WriteLine(question);
+                    DisplaySpinner(3); // Display animation for 3 seconds
+                    totalDuration += 3; // Increment the total duration
+
+                    // Pause for 2 seconds between questions
+                    Thread.Sleep(2000);
+                    totalDuration += 2;
+                }
+            }
+
+            Console.WriteLine("Reflection activity completed.");
+        }
+        else
+        {
+            Console.WriteLine("Invalid duration. Please enter a valid number greater than 0.");
         }
     }
+
 }
 
 class ListingActivity : MindfulnessActivity
@@ -142,7 +195,7 @@ class ListingActivity : MindfulnessActivity
         "What are personal strengths of yours?",
         "Who are people that you have helped this week?",
         "When have you felt the Holy Ghost this month?",
-        "Who are some of your personal heroes?"
+        "Who are some of your personal heroes"
     };
 
     public ListingActivity() : base("Listing", "This activity will help you reflect on the good things in your life by having you list as many things as you can in a certain area.")
@@ -151,17 +204,20 @@ class ListingActivity : MindfulnessActivity
 
     protected override void PerformActivity(int duration)
     {
-        string prompt = Prompts[new Random().Next(Prompts.Length)];
-        Console.WriteLine(prompt);
+        Console.WriteLine("Get ready to begin...\n");
 
         Console.WriteLine("Press Enter when ready to start listing...");
         Console.ReadLine(); // Wait for user input
 
-        int itemsListed = 0;
         DateTime startTime = DateTime.Now;
+        Random random = new Random();
+        int itemsListed = 0;
 
         while ((DateTime.Now - startTime).TotalSeconds < duration)
         {
+            string randomPrompt = Prompts[random.Next(Prompts.Length)]; // Select a random prompt
+            Console.WriteLine(randomPrompt); // Display the selected prompt
+
             Console.Write("Enter an item (or press Enter to finish): ");
             string item = Console.ReadLine();
 
@@ -173,6 +229,7 @@ class ListingActivity : MindfulnessActivity
         }
 
         Console.WriteLine($"\nNumber of items listed: {itemsListed}");
+        Console.WriteLine("Listing activity completed.");
     }
 }
 
@@ -244,4 +301,3 @@ class Program
 // Exceed Requirement 
 // Adding more meaningful animations for the breathing
 // Includes a dynamic text animation loop for both "Breathe in..." and "Breathe out...". 
-// The animation grows quickly at the beginning and then slows down as it progresses.

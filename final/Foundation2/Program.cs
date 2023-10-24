@@ -5,12 +5,18 @@ class Product
 {
     public string Name { get; set; }
     public int ProductId { get; set; }
-    public decimal Price { get; set; }
+    private decimal _price; // Member variable with underscore
     public int Quantity { get; set; }
+
+    public decimal Price // Public property for _price
+    {
+        get { return _price; }
+        set { _price = value; }
+    }
 
     public decimal CalculatePrice()
     {
-        return Price * Quantity;
+        return _price * Quantity;
     }
 }
 
@@ -45,31 +51,31 @@ class Customer
 
 class Order
 {
-    private List<Product> Products { get; set; }
-    private Customer Customer { get; set; }
+    private List<Product> _products;
+    private Customer _customer;
 
     public Order(List<Product> products, Customer customer)
     {
-        Products = products;
-        Customer = customer;
+        _products = products;
+        _customer = customer;
     }
 
     public decimal CalculateTotal()
     {
         decimal total = 0;
-        foreach (var product in Products)
+        foreach (var product in _products)
         {
             total += product.CalculatePrice();
         }
 
-        total += Customer.IsInUSA() ? 5 : 35;
+        total += _customer.IsInUSA() ? 5 : 35;
         return total;
     }
 
     public string GetPackingLabel()
     {
         string packingLabel = "Packing Label:\n";
-        foreach (var product in Products)
+        foreach (var product in _products)
         {
             packingLabel += $"{product.Name} (ID: {product.ProductId})\n";
         }
@@ -79,9 +85,9 @@ class Order
     public string GetShippingLabel()
     {
         string shippingLabel = "Shipping Label:\n";
-        shippingLabel += $"Name: {Customer.Name}\n";
+        shippingLabel += $"Name: {_customer.Name}\n";
         shippingLabel += "Address:\n";
-        shippingLabel += Customer.CustomerAddress.GetFullAddress();
+        shippingLabel += _customer.CustomerAddress.GetFullAddress();
         return shippingLabel;
     }
 }

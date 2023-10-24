@@ -2,14 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-// Base class for goals
 public abstract class Goal
 {
-    private string _name;
-    private int _value;
-
-    public string Name { get => _name; private set => _name = value; }
-    public int Value { get => _value; private set => _value = value; }
+    public string Name { get; private set; }
+    public int Value { get; private set; }
     public bool Completed { get; protected set; }
 
     public Goal(string name, int value)
@@ -18,13 +14,19 @@ public abstract class Goal
         Value = value;
     }
 
+    protected Goal(string name, int value, bool completed)
+    {
+        Name = name;
+        Value = value;
+        Completed = completed;
+    }
+
     public abstract int MarkComplete();
 }
 
-// Derived class for simple goals
 public class SimpleGoal : Goal
 {
-    public SimpleGoal(string name, int value) : base(name, value) { }
+    public SimpleGoal(string name, int value, bool completed = false) : base(name, value, completed) { }
 
     public override int MarkComplete()
     {
@@ -33,7 +35,6 @@ public class SimpleGoal : Goal
     }
 }
 
-// Derived class for eternal goals
 public class EternalGoal : Goal
 {
     public EternalGoal(string name, int value) : base(name, value) { }
@@ -45,15 +46,14 @@ public class EternalGoal : Goal
     }
 }
 
-// Derived class for checklist goals
 public class ChecklistGoal : Goal
 {
     private int _completedCount;
     private int _targetCount;
     private int _bonusValue;
 
-    public ChecklistGoal(string name, int value, int targetCount, int bonusValue)
-        : base(name, value)
+    public ChecklistGoal(string name, int value, int targetCount, int bonusValue, bool completed = false)
+        : base(name, value, completed)
     {
         _completedCount = 0;
         _targetCount = targetCount;
@@ -71,15 +71,14 @@ public class ChecklistGoal : Goal
     }
 }
 
-// Derived class for progress goals
 public class ProgressGoal : Goal
 {
     private int _progress;
     private int _targetProgress;
     private int _progressValue;
 
-    public ProgressGoal(string name, int value, int targetProgress, int progressValue)
-        : base(name, value)
+    public ProgressGoal(string name, int value, int targetProgress, int progressValue, bool completed = false)
+        : base(name, value, completed)
     {
         _progress = 0;
         _targetProgress = targetProgress;
@@ -97,7 +96,6 @@ public class ProgressGoal : Goal
     }
 }
 
-// Derived class for negative goals
 public class NegativeGoal : Goal
 {
     public NegativeGoal(string name, int value) : base(name, value) { }
@@ -109,7 +107,6 @@ public class NegativeGoal : Goal
     }
 }
 
-// Class to manage goals, score, and player level
 public class EternalQuestProgram
 {
     private List<Goal> _goals;
@@ -240,23 +237,23 @@ public class EternalQuestProgram
                         switch (goalType.ToLower())
                         {
                             case "simple":
-                                _goals.Add(new SimpleGoal(name, value) { Completed = completed });
+                                _goals.Add(new SimpleGoal(name, value, completed));
                                 break;
                             case "eternal":
-                                _goals.Add(new EternalGoal(name, value) { Completed = completed });
+                                _goals.Add(new EternalGoal(name, value));
                                 break;
                             case "checklist":
                                 int targetCount = int.Parse(details[3]);
                                 int bonusValue = int.Parse(details[4]);
-                                _goals.Add(new ChecklistGoal(name, value, targetCount, bonusValue) { Completed = completed });
+                                _goals.Add(new ChecklistGoal(name, value, targetCount, bonusValue, completed));
                                 break;
                             case "progress":
                                 int targetProgress = int.Parse(details[3]);
                                 int progressValue = int.Parse(details[4]);
-                                _goals.Add(new ProgressGoal(name, value, targetProgress, progressValue) { Completed = completed });
+                                _goals.Add(new ProgressGoal(name, value, targetProgress, progressValue, completed));
                                 break;
                             case "negative":
-                                _goals.Add(new NegativeGoal(name, value) { Completed = completed });
+                                _goals.Add(new NegativeGoal(name, value));
                                 break;
                             default:
                                 throw new ArgumentException("Invalid goal type");
@@ -310,8 +307,6 @@ class Program
         program.ShowGoals();
     }
 }
-
-
 
  
 // Exceed Req:

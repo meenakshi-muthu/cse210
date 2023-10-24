@@ -1,5 +1,18 @@
 using System;
 
+class Address
+{
+    public string Street { get; set; }
+    public string City { get; set; }
+    public string State { get; set; }
+    public string Country { get; set; }
+
+    public string GetFullAddress()
+    {
+        return $"{Street}, {City}, {State}, {Country}";
+    }
+}
+
 class Event
 {
     public string EventTitle { get; set; }
@@ -17,19 +30,9 @@ class Event
         Address = address;
     }
 
-    public virtual string GetStandardDetails()
-    {
-        return $"Title: {EventTitle}\nDescription: {Description}\nDate: {Date.ToShortDateString()}\nTime: {Time}\nAddress: {Address.GetFullAddress()}";
-    }
-
     public virtual string GetFullDetails()
     {
-        return GetStandardDetails();
-    }
-
-    public virtual string GetShortDescription()
-    {
-        return $"{GetType().Name}: {EventTitle}\nDate: {Date.ToShortDateString()}";
+        return $"Title: {EventTitle}\nDescription: {Description}\nDate: {Date.ToShortDateString()}\nTime: {Time}\nAddress: {Address.GetFullAddress()}";
     }
 }
 
@@ -47,7 +50,8 @@ class Lecture : Event
 
     public override string GetFullDetails()
     {
-        return $"{base.GetFullDetails()}\nType: Lecture\nSpeaker: {Speaker}\nCapacity: {Capacity}";
+        string lectureDetails = base.GetFullDetails();
+        return $"{lectureDetails}\nType: Lecture\nSpeaker: {Speaker}\nCapacity: {Capacity}";
     }
 }
 
@@ -63,7 +67,8 @@ class Reception : Event
 
     public override string GetFullDetails()
     {
-        return $"{base.GetFullDetails()}\nType: Reception\nRSVP Email: {RsvpEmail}";
+        string receptionDetails = base.GetFullDetails();
+        return $"{receptionDetails}\nType: Reception\nRSVP Email: {RsvpEmail}";
     }
 }
 
@@ -73,21 +78,43 @@ class OutdoorGathering : Event
         : base(eventTitle, description, date, time, address)
     {
     }
-
-    public override string GetFullDetails()
-    {
-        return $"{base.GetFullDetails()}\nType: Outdoor Gathering";
-    }
 }
 
 class Program
 {
     static void Main()
     {
-        Event lecture = new Lecture("C# Basics", "Introduction to C# programming", DateTime.Now, "6:00 PM", new Address(), "John Doe", 100);
-        Event reception = new Reception("Networking Event", "Casual networking event", DateTime.Now, "7:30 PM", new Address(), "rsvp@example.com");
-        Event outdoorGathering = new OutdoorGathering("Summer Picnic", "Casual picnic in the park", DateTime.Now, "12:00 PM", new Address());
+        // Create address objects
+        Address address1 = new Address
+        {
+            Street = "123 Main St",
+            City = "Anytown",
+            State = "CA",
+            Country = "USA"
+        };
 
+        Address address2 = new Address
+        {
+            Street = "456 Elm St",
+            City = "Another Town",
+            State = "NY",
+            Country = "USA"
+        };
+
+        Address address3 = new Address
+        {
+            Street = "789 Oak St",
+            City = "Yet Another Town",
+            State = "TX",
+            Country = "USA"
+        };
+
+        // Create events using the address objects
+        Event lecture = new Lecture("C# Basics", "Introduction to C# programming", DateTime.Now, "6:00 PM", address1, "John Doe", 100);
+        Event reception = new Reception("Networking Event", "Casual networking event", DateTime.Now, "7:30 PM", address2, "rsvp@example.com");
+        Event outdoorGathering = new OutdoorGathering("Summer Picnic", "Casual picnic in the park", DateTime.Now, "12:00 PM", address3);
+
+        // Display event details
         Console.WriteLine(lecture.GetFullDetails());
         Console.WriteLine();
         Console.WriteLine(reception.GetFullDetails());
