@@ -62,6 +62,7 @@ public class ChecklistGoal : Goal
 
     public int CompletedCount => _completedCount;
     public int TargetCount => _targetCount;
+    public int BonusValue => _bonusValue;
 
     public override int MarkComplete()
     {
@@ -87,6 +88,7 @@ public class ProgressGoal : Goal
 
     public int Progress => _progress;
     public int TargetProgress => _targetProgress;
+    public int ProgressValue => _progressValue;
 
     public override int MarkComplete()
     {
@@ -210,7 +212,27 @@ public class EternalQuestProgram
         {
             foreach (var goal in _goals)
             {
-                outputFile.WriteLine($"{goal.GetType().Name}:{goal.Name},{goal.Value},{goal.Completed}");
+                string goalType = goal.GetType().Name;
+                string name = goal.Name;
+                int value = goal.Value;
+                bool completed = goal.Completed ? true : false;
+
+                if (goal is ChecklistGoal checklistGoal)
+                {
+                    int targetCount = checklistGoal.TargetCount;
+                    int bonusValue = checklistGoal.BonusValue;
+                    outputFile.WriteLine($"{goalType}:{name},{value},{completed},{targetCount},{bonusValue}");
+                }
+                else if (goal is ProgressGoal progressGoal)
+                {
+                    int targetProgress = progressGoal.TargetProgress;
+                    int progressValue = progressGoal.ProgressValue;
+                    outputFile.WriteLine($"{goalType}:{name},{value},{completed},{targetProgress},{progressValue}");
+                }
+                else
+                {
+                    outputFile.WriteLine($"{goalType}:{name},{value},{completed}");
+                }
             }
         }
     }
@@ -227,7 +249,7 @@ public class EternalQuestProgram
                 if (parts.Length == 2)
                 {
                     string[] details = parts[1].Split(',');
-                    if (details.Length == 3)
+                    if (details.Length >= 3)
                     {
                         string goalType = parts[0];
                         string name = details[0];
@@ -243,14 +265,20 @@ public class EternalQuestProgram
                                 _goals.Add(new EternalGoal(name, value));
                                 break;
                             case "checklist":
-                                int targetCount = int.Parse(details[3]);
-                                int bonusValue = int.Parse(details[4]);
-                                _goals.Add(new ChecklistGoal(name, value, targetCount, bonusValue, completed));
+                                if (details.Length == 5)
+                                {
+                                    int targetCount = int.Parse(details[3]);
+                                    int bonusValue = int.Parse(details[4]);
+                                    _goals.Add(new ChecklistGoal(name, value, targetCount, bonusValue, completed));
+                                }
                                 break;
                             case "progress":
-                                int targetProgress = int.Parse(details[3]);
-                                int progressValue = int.Parse(details[4]);
-                                _goals.Add(new ProgressGoal(name, value, targetProgress, progressValue, completed));
+                                if (details.Length == 5)
+                                {
+                                    int targetProgress = int.Parse(details[3]);
+                                    int progressValue = int.Parse(details[4]);
+                                    _goals.Add(new ProgressGoal(name, value, targetProgress, progressValue, completed));
+                                }
                                 break;
                             case "negative":
                                 _goals.Add(new NegativeGoal(name, value));
@@ -263,51 +291,87 @@ public class EternalQuestProgram
             }
         }
     }
-}
 
-class Program
-{
-    static void Main()
+    class Program
     {
-        var program = new EternalQuestProgram();
+        static void Main()
+        {
+            var program = new EternalQuestProgram();
 
-        // Create goals
-        program.CreateGoal("simple", "Read Scriptures", 100);
-        program.CreateGoal("simple", "Run a Marathon", 1000);
-        program.CreateGoal("eternal", "Attend Temple", 50);
-        program.CreateGoal("checklist", "Exercise Daily", 20, 5, 100);
-        program.CreateGoal("progress", "Run a Marathon", 500, 1000, 50);
-        program.CreateGoal("negative", "Eat Junk Food", 50);
+            while (true)
+            {
+                Console.WriteLine("Choose an option:");
+                Console.WriteLine("1. Create a new goal");
+                Console.WriteLine("2. Record an event");
+                Console.WriteLine("3. Show goals");
+                Console.WriteLine("4. Show score");
+                Console.WriteLine("5. Show level");
+                Console.WriteLine("6. Save goals to a file");
+                Console.WriteLine("7. Load goals from a file");
+                Console.WriteLine("8. Exit");
 
-        // Display goals
-        program.ShowGoals();
+                string choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        Console.WriteLine("Enter goal type (simple/eternal/checklist/progress/negative):");
+                        string goalType = Console.ReadLine();
+                        Console.WriteLine("Enter goal name:");
+                        string name = Console.ReadLine();
+                        Console.WriteLine("Enter goal value:");
+                        int value = int.Parse(Console.ReadLine());
 
-        // Record events
-        program.RecordEvent("Read Scriptures");
-        program.RecordEvent("Run a Marathon");
-        program.RecordEvent("Attend Temple");
-        program.RecordEvent("Exercise Daily");
-        program.RecordEvent("Exercise Daily");
-        program.RecordEvent("Exercise Daily");
-        program.RecordEvent("Exercise Daily");
-        program.RecordEvent("Exercise Daily");
+                        if (goalType == "checklist" || goalType == "progress")
+                        {
+                            Console.WriteLine("Enter target count (0 if not applicable):");
+                            int targetCount = int.Parse(Console.ReadLine());
+                            Console.WriteLine("Enter bonus value (0 if not applicable):");
+                            int bonusValue = int.Parse(Console.ReadLine());
+                            Console.WriteLine("Enter target progress (0 if not applicable):");
+                            int targetProgress = int.Parse(Console.ReadLine());
+                            Console.WriteLine("Enter progress value (0 if not applicable):");
+                            int progressValue = int.Parse(Console.ReadLine());
 
-        // Display updated goals, score, and level
-        program.ShowGoals();
-        program.ShowScore();
-        program.ShowLevel();
+                            program.CreateGoal(goalType, name, value, targetCount, bonusValue, targetProgress, progressValue);
+                        }
+                        else
+                        {
+                            program.CreateGoal(goalType, name, value);
+                        }
 
-        // Save goals to a file
-        program.SaveGoals("goals.txt");
-
-        // Clear goals and load from the file
-        program.LoadGoals("goals.txt");
-
-        // Display loaded goals
-        program.ShowGoals();
+                        break;
+                    case "2":
+                        Console.WriteLine("Enter the goal name to record an event:");
+                        string eventGoalName = Console.ReadLine();
+                        program.RecordEvent(eventGoalName);
+                        break;
+                    case "3":
+                        program.ShowGoals();
+                        break;
+                    case "4":
+                        program.ShowScore();
+                        break;
+                    case "5":
+                        program.ShowLevel();
+                        break;
+                    case "6":
+                        Console.WriteLine("Enter the filename to save goals:");
+                        string saveFileName = Console.ReadLine();
+                        program.SaveGoals(saveFileName);
+                        break;
+                    case "7":
+                        Console.WriteLine("Enter the filename to load goals:");
+                        string loadFileName = Console.ReadLine();
+                        program.LoadGoals(loadFileName);
+                        break;
+                    case "8":
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option. Please choose a valid option.");
+                        break;
+                }
+            }
+        }
     }
 }
-
- 
-// Exceed Req:
-// additional ProgressGoal and NegativeGoal classes added.  
